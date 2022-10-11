@@ -1,0 +1,43 @@
+version: '3'
+
+# Define which containers to create
+services:
+
+    # Define the container to run juptyer
+    jupyter:
+        # Build from the dockerfile
+        build: .
+        # Map docker ports to local ports
+        ports: 
+        - 8888:8888
+        # Create a volume based on the contents of the notebooks folder
+        volumes: 
+         - ./dashboard:/home/infomdss/dashboard
+        # Enable Jupyter lab and rename the user
+        environment:
+         - JUPYTER_ENABLE_LAB=yes
+         - NB_USER=infomdss
+         - CHOWN_HOME=yes
+        # Set the working directory
+        working_dir: /home/infomdss/dashboard
+        # Link the service to be callable from jupyter
+        links:
+         - db_dashboard
+    
+    # Define the container to run postgres
+    db_dashboard: 
+        # Build from the postgres image
+        image: postgres
+        # Set database parameters
+        environment:
+         - POSTGRES_USER=student
+         - POSTGRES_PASSWORD=infomdss
+         - POSTGRES_DB=covid
+        # Create a volume for the database
+        volumes:
+         - db_dashboard-data:/var/lib/postgresql/data/
+        container_name: db_dashboard
+
+# Define the named volume
+volumes:
+    db_dashboard-data:
